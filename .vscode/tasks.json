@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Make",
+            "type": "shell",
+            "command": "make -C firmware/star-earrings-src",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Flash ST",
+            "type": "shell",
+            "command": "st-flash --reset write firmware/star-earrings-src/star-earrings.bin 0x8000000",
+            "problemMatcher": []
+        }
+    ]
+}

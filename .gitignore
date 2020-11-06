@@ -1,0 +1,5 @@
+firmware/star-earrings-src/bin/*
+firmware/star-earrings-src/*.bin
+firmware/star-earrings-src/*.elf
+
+firmware/star-earrings-src/generated.stm32l011f4ux.ld

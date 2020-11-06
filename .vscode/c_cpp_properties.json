@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/firmware/**"
+            ],
+            "forcedInclude": [
+                "${workspaceFolder}/firmware/libopencm3/include/libopencm3/stm32/l0/rcc.h",
+                "${workspaceFolder}/firmware/libopencm3/include/libopencm3/stm32/l0/gpio.h",
+                "${workspaceFolder}/firmware/libopencm3/include/libopencm3/stm32/l0/timer.h",
+                "${workspaceFolder}/firmware/libopencm3/include/libopencm3/stm32/l0/exti.h",
+                "${workspaceFolder}/firmware/libopencm3/include/libopencm3/stm32/l0/nvic.h",
+                "${workspaceFolder}/firmware/libopencm3/include/libopencm3/cm3/nvic.h"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}
