@@ -1,12 +1,17 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/timer.h>
+#include <libopencm3/stm32/lptimer.h>
 #include <libopencm3/stm32/exti.h>
 #include <libopencm3/stm32/pwr.h>
 #include <libopencm3/cm3/nvic.h>
 
+// #define DEBUG
+
+#ifdef DEBUG
 #define LED_PIN GPIO15
 #define LED_PORT GPIOC
+#endif
 
 #define LED0_PORT GPIOA
 #define LED0_PIN GPIO0
@@ -21,7 +26,10 @@
 #define BTN_PIN GPIO4
 
 // TIM21 = 65536/4096 ~= 16 Hz Count increment
-#define TIM21_INT_FREQ 4
+#define TIM21_INT_FREQ 4 // Hz
+// Button Debounce 0.2ms = x*128/65536Hz
+// x = 102 counts
+#define DEBOUNCE_CMP_CNT 102
 
 enum LightState
 {
@@ -29,11 +37,12 @@ enum LightState
     BLINK = 1,
     CHASE = 2,
     ALTERNATE = 3,
-    NUM_STATES 
+    NUM_STATES
 };
 
 volatile uint32_t light_state;
 volatile uint32_t tim21_count;
+volatile uint32_t debounce = 0;
 
 void tim21_isr(void)
 {
@@ -124,8 +133,28 @@ void tim21_isr(void)
 void exti4_15_isr(void)
 {
     exti_reset_request(EXTI4);
-    gpio_toggle(LED_PORT, LED_PIN);
-    light_state = (light_state + 1) % NUM_STATES;
+    if (debounce == 0 && gpio_get(BTN_PORT, BTN_PIN) != 0)
+    {
+        debounce = 1;
+        lptimer_enable(LPTIM1);
+        lptimer_set_counter(LPTIM1, 0);
+        lptimer_set_compare(LPTIM1, DEBOUNCE_CMP_CNT);   //
+        lptimer_start_counter(LPTIM1, LPTIM_CR_SNGSTRT); // Start timer
+#ifdef DEBUG
+        gpio_set(LED_PORT, LED_PIN);
+#endif
+        light_state = (light_state + 1) % NUM_STATES;
+    }
+}
+
+void lptim1_isr(void)
+{
+    lptimer_clear_flag(LPTIM1, LPTIM_ICR_CMPMCF | LPTIM_ICR_ARRMCF);
+    lptimer_disable(LPTIM1);
+    debounce = 0;
+#ifdef DEBUG
+    gpio_clear(LED_PORT, LED_PIN);
+#endif
 }
 
 int main(void)
@@ -143,13 +172,17 @@ int main(void)
     // Initialize peripherals access to clock
     rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_GPIOB);
+#ifdef DEBUG
     rcc_periph_clock_enable(RCC_GPIOC);
-
+#endif
     rcc_periph_clock_enable(RCC_TIM2);
     rcc_periph_clock_enable(RCC_TIM21);
+    rcc_periph_clock_enable(RCC_LPTIM1);
 
     // Setup GPIO
+#ifdef DEBUG
     gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_PIN);
+#endif
 
     gpio_mode_setup(LED0_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, LED0_PIN);
     gpio_mode_setup(LED1_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, LED1_PIN);
@@ -210,8 +243,9 @@ int main(void)
     timer_set_mode(TIM21, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
     timer_disable_preload(TIM21);
     timer_continuous_mode(TIM21);
+    // TIM21 frequency = 65536/4096 = 16Hz
     timer_set_prescaler(TIM21, 4095);
-    timer_set_period(TIM21, 16/TIM21_INT_FREQ);
+    timer_set_period(TIM21, 16 / TIM21_INT_FREQ);
     timer_enable_counter(TIM21);
     timer_enable_irq(TIM21, TIM_DIER_CC1IE);
 
@@ -222,9 +256,22 @@ int main(void)
     exti_enable_request(EXTI4);
     nvic_enable_irq(NVIC_EXTI4_15_IRQ);
 
+    // Setup LPTIM1 for button debounce
+    nvic_enable_irq(NVIC_LPTIM1_IRQ);
+    rcc_periph_reset_pulse(RST_LPTIM1);
+    lptimer_set_internal_clock_source(LPTIM1);
+    lptimer_disable_preload(LPTIM1);
+    lptimer_set_prescaler(LPTIM1, LPTIM_CFGR_PRESC_128);
+    // Enable LPTIM1 in order to set period, then disable
+    lptimer_enable(LPTIM1);
+    lptimer_set_counter(LPTIM1, 0);
+    lptimer_set_period(LPTIM1, 0xFFFF); // Using Compare, so set to max period
+    lptimer_disable(LPTIM1);
+    lptimer_enable_irq(LPTIM1, LPTIM_IER_CMPMIE);
+
     while (1)
     {
-        // Attempt to save power, although most power saving 
+        // Attempt to save power, although most power saving
         // is coming from the low clock speed
         pwr_set_stop_mode();
     }

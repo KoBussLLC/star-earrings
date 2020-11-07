@@ -9,6 +9,7 @@
                 "${workspaceFolder}/firmware/libopencm3/include/libopencm3/stm32/l0/rcc.h",
                 "${workspaceFolder}/firmware/libopencm3/include/libopencm3/stm32/l0/gpio.h",
                 "${workspaceFolder}/firmware/libopencm3/include/libopencm3/stm32/l0/timer.h",
+                "${workspaceFolder}/firmware/libopencm3/include/libopencm3/stm32/l0/lptimer.h",
                 "${workspaceFolder}/firmware/libopencm3/include/libopencm3/stm32/l0/exti.h",
                 "${workspaceFolder}/firmware/libopencm3/include/libopencm3/stm32/l0/nvic.h",
                 "${workspaceFolder}/firmware/libopencm3/include/libopencm3/cm3/nvic.h"
