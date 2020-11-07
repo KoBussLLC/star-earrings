@@ -25,31 +25,75 @@
 #define BTN_PORT GPIOA
 #define BTN_PIN GPIO4
 
-// TIM21 = 65536/4096 ~= 16 Hz Count increment
-#define TIM21_INT_FREQ 4 // Hz
+// TIM21 = 65536/2048 ~= 32 Hz Count increment
+#define TIM21_INT_FREQ 32 // Hz
 // Button Debounce 0.2ms = x*128/65536Hz
 // x = 102 counts
 #define DEBOUNCE_CMP_CNT 102
 
 enum LightState
 {
-    ON = 0,
-    BLINK = 1,
-    CHASE = 2,
-    ALTERNATE = 3,
-    NUM_STATES
+    BREATH,
+    BLINK,
+    ON,
+    CHASE,
+    ALTERNATE,
+    NUM_STATES,
 };
 
 volatile uint32_t light_state;
 volatile uint32_t tim21_count;
 volatile uint32_t debounce = 0;
 
+volatile uint8_t breath_l0[32] = {1, 1, 2, 4, 6, 9, 11, 15, 18, 21, 24, 27, 29, 31, 32, 33, 33, 32, 31, 29, 27, 24, 21, 18, 15, 11, 9, 6, 4, 2, 1, 1};
+volatile uint8_t i = 0;
+volatile uint8_t j = 0;
+
 void tim21_isr(void)
 {
     timer_clear_flag(TIM21, TIM_SR_CC1IF);
 
+    if (i > 31)
+    {
+        i = 0;
+        j++;
+    }
+    j = j % 4;
+
     switch (light_state)
     {
+    case BREATH:
+        switch (j)
+        {
+        case 0:
+            timer_set_oc_value(TIM2, TIM_OC1, breath_l0[i++]);
+            timer_set_oc_value(TIM2, TIM_OC2, 1);
+            timer_set_oc_value(TIM2, TIM_OC3, 1);
+            timer_set_oc_value(TIM2, TIM_OC4, 1);
+            break;
+        case 1:
+            timer_set_oc_value(TIM2, TIM_OC1, 1);
+            timer_set_oc_value(TIM2, TIM_OC2, breath_l0[i++]);
+            timer_set_oc_value(TIM2, TIM_OC3, 1);
+            timer_set_oc_value(TIM2, TIM_OC4, 1);
+            break;
+        case 2:
+            timer_set_oc_value(TIM2, TIM_OC1, 1);
+            timer_set_oc_value(TIM2, TIM_OC2, 1);
+            timer_set_oc_value(TIM2, TIM_OC3, breath_l0[i++]);
+            timer_set_oc_value(TIM2, TIM_OC4, 1);
+            break;
+        case 3:
+            timer_set_oc_value(TIM2, TIM_OC1, 1);
+            timer_set_oc_value(TIM2, TIM_OC2, 1);
+            timer_set_oc_value(TIM2, TIM_OC3, 1);
+            timer_set_oc_value(TIM2, TIM_OC4, breath_l0[i++]);
+            break;
+        default:
+            break;
+        }
+
+        break;
     case ON:
         timer_set_oc_value(TIM2, TIM_OC1, 1);
         timer_set_oc_value(TIM2, TIM_OC2, 1);
@@ -58,7 +102,7 @@ void tim21_isr(void)
         break;
 
     case BLINK:
-        if (tim21_count % 2)
+        if (tim21_count < 8)
         {
             timer_set_oc_value(TIM2, TIM_OC1, 1);
             timer_set_oc_value(TIM2, TIM_OC2, 1);
@@ -75,39 +119,38 @@ void tim21_isr(void)
         break;
 
     case CHASE:
-        switch (tim21_count % 4)
+        if (tim21_count < 4)
         {
-        case 0:
             timer_set_oc_value(TIM2, TIM_OC1, 1);
             timer_set_oc_value(TIM2, TIM_OC2, 0);
             timer_set_oc_value(TIM2, TIM_OC3, 0);
             timer_set_oc_value(TIM2, TIM_OC4, 0);
-            break;
-        case 1:
+        }
+        else if (tim21_count >= 4 && tim21_count < 8)
+        {
             timer_set_oc_value(TIM2, TIM_OC1, 0);
             timer_set_oc_value(TIM2, TIM_OC2, 1);
             timer_set_oc_value(TIM2, TIM_OC3, 0);
             timer_set_oc_value(TIM2, TIM_OC4, 0);
-            break;
-        case 2:
+        }
+        else if (tim21_count >= 8 && tim21_count < 12)
+        {
             timer_set_oc_value(TIM2, TIM_OC1, 0);
             timer_set_oc_value(TIM2, TIM_OC2, 0);
             timer_set_oc_value(TIM2, TIM_OC3, 1);
             timer_set_oc_value(TIM2, TIM_OC4, 0);
-            break;
-        case 3:
+        }
+        else
+        {
             timer_set_oc_value(TIM2, TIM_OC1, 0);
             timer_set_oc_value(TIM2, TIM_OC2, 0);
             timer_set_oc_value(TIM2, TIM_OC3, 0);
             timer_set_oc_value(TIM2, TIM_OC4, 1);
-            break;
-        default:
-            break;
         }
         break;
 
     case ALTERNATE:
-        if (tim21_count % 2)
+        if (tim21_count < 8)
         {
             timer_set_oc_value(TIM2, TIM_OC1, 0);
             timer_set_oc_value(TIM2, TIM_OC2, 1);
@@ -127,7 +170,7 @@ void tim21_isr(void)
         break;
     }
 
-    tim21_count = (tim21_count + 1) % 4;
+    tim21_count = (tim21_count + 1) % 16;
 }
 
 void exti4_15_isr(void)
@@ -243,9 +286,9 @@ int main(void)
     timer_set_mode(TIM21, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
     timer_disable_preload(TIM21);
     timer_continuous_mode(TIM21);
-    // TIM21 frequency = 65536/4096 = 16Hz
-    timer_set_prescaler(TIM21, 4095);
-    timer_set_period(TIM21, 16 / TIM21_INT_FREQ);
+    // TIM21 frequency = 65536/2048 = 32Hz
+    timer_set_prescaler(TIM21, 2047);
+    timer_set_period(TIM21, 32 / TIM21_INT_FREQ);
     timer_enable_counter(TIM21);
     timer_enable_irq(TIM21, TIM_DIER_CC1IE);
 

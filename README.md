@@ -32,3 +32,19 @@ The firmware for the earrings uses the open-source [libopencm3](http://libopencm
 - EXTI4 Interrupt used for push button
 - LPTIM1 used for button debounce
 
+### Generate PWM Sine Waves
+
+Short python3 script to generate breathing pattern array. Modify this script and TIM2 values to customize LED patterns
+
+``` python
+import numpy as np
+import math
+
+t = np.linspace(0.0, 2.0*math.pi, num=32)
+max_ccr = 16.0 
+np.set_printoptions(precision=0)
+array = np.cos(t)*-1.0*max_ccr + max_ccr + 1.0
+array = np.round(array).astype(int)
+
+print(np.array2string(array, formatter={'int':lambda x: str(x)}, separator=', '))
+```
