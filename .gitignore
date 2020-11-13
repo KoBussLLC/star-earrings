@@ -3,3 +3,40 @@ firmware/star-earrings-src/*.bin
 firmware/star-earrings-src/*.elf
 
 firmware/star-earrings-src/generated.stm32l011f4ux.ld
+
+cad/*.FCStd1
+
+# Reports
+*.rpt
+
+# CPL data generated from PCB
+*.pos
+
+# KiCAD backup
+*.bak
+*.bck
+*.kicad_pcb-bak
+*.sch-bak
+_saved_*
+
+# Netlists
+*.net
+
+# BOM plugin output
+*.csv.tmp
+*.csv
+*.xml
+
+*.pdf
+
+# Gerbers
+*.gbr
+
+# Drill files
+*.drl
+
+# Footprint info cache
+fp-info-cache
+
+# Autosave files
+_autosave-*
