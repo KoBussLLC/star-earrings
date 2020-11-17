@@ -19,8 +19,8 @@
 #define LED1_PIN GPIO1
 #define LED2_PORT GPIOB
 #define LED2_PIN GPIO1
-#define LED3_PORT GPIOB
-#define LED3_PIN GPIO6
+#define LED3_PORT GPIOA
+#define LED3_PIN GPIO10
 
 #define BTN_PORT GPIOA
 #define BTN_PIN GPIO4

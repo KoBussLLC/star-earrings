@@ -6,6 +6,9 @@ firmware/star-earrings-src/generated.stm32l011f4ux.ld
 
 cad/*.FCStd1
 
+# Auto-create panel project
+pcb/star-earrings-panel.pro
+
 # Reports
 *.rpt
 
