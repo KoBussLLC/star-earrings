@@ -48,3 +48,8 @@ array = np.round(array).astype(int)
 
 print(np.array2string(array, formatter={'int':lambda x: str(x)}, separator=', '))
 ```
+
+## Customer Instructions
+
+The customer instructions for the eaarings: 
+![](img/customerinstructionsearrings.svg)
