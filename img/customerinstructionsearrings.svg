@@ -13,7 +13,7 @@
    version="1.1"
    id="svg2257"
    sodipodi:docname="customerinstructionsearrings.svg"
-   inkscape:version="1.0 (4035a4f, 2020-05-01)"
+   inkscape:version="1.0.1 (c497b03c, 2020-09-10)"
    inkscape:export-filename="/Users/yudiko/Downloads/customerinstructionsearrings.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96">
@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -559,9 +559,9 @@
      inkscape:window-height="997"
      id="namedview2259"
      showgrid="false"
-     inkscape:zoom="0.6133803"
-     inkscape:cx="445.40274"
-     inkscape:cy="600.18503"
+     inkscape:zoom="1.2267606"
+     inkscape:cx="95.266846"
+     inkscape:cy="269.18908"
      inkscape:window-x="15"
      inkscape:window-y="23"
      inkscape:window-maximized="0"
@@ -8827,18 +8827,16 @@
          cy="-120.21455"
          r="6.1467776"
          transform="scale(1,-1)" />
-      <text
-         xml:space="preserve"
-         style="font-size:7.78404px;line-height:1.25;font-family:sans-serif;word-spacing:0px;stroke-width:0.194601"
-         x="36.905556"
-         y="-122.13465"
+      <g
+         aria-label="+"
+         transform="scale(1.0354312,-0.96578121)"
          id="text2949"
-         transform="scale(1.0354312,-0.96578121)"><tspan
-           sodipodi:role="line"
-           id="tspan2947"
-           x="36.905556"
-           y="-122.13465"
-           style="fill:#ffffff;stroke:#ffffff;stroke-width:0.194601">+</tspan></text>
+         style="font-size:7.78404px;line-height:1.25;font-family:sans-serif;word-spacing:0px;stroke-width:0.194601">
+        <path
+           d="m 42.47753,-124.30871 h -2.071437 v 2.07144 H 39.77516 v -2.07144 h -2.071436 v -0.60813 h 2.071436 v -2.07143 h 0.630933 v 2.07143 h 2.071437 z"
+           style="fill:#ffffff;stroke:#ffffff;stroke-width:0.194601"
+           id="path4156" />
+      </g>
     </g>
     <path
        sodipodi:nodetypes="cccccccccc"
