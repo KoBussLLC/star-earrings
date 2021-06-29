@@ -23,7 +23,7 @@ PCB earrings to show the world that you are there!
 - Mode changing -> Push Button to switch LED patterns
 - SMD Manufacturing/Assembly -> 100% SMD Components with dual side panelized assembly
 
-## Fimrware
+## Firmware
 
 The firmware for the earrings uses the open-source [libopencm3](http://libopencm3.org/) library
 
